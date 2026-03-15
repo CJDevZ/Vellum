@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.cjdev.scrolls.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ItemStackMixin",
+    "PlayerMixin",
+    "WorldMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
