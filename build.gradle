@@ -32,9 +32,9 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     implementation("dev.hollowcube:luau:${luau_version}")
-    implementation("dev.hollowcube:luau-natives-windows-x64:${luau_version}")
-    implementation("dev.hollowcube:luau-natives-linux-x64:${luau_version}")
-    implementation("dev.hollowcube:luau-natives-macos-arm64:${luau_version}")
+    implementation include("dev.hollowcube:luau-natives-windows-x64:${luau_version}")
+    implementation include("dev.hollowcube:luau-natives-linux-x64:${luau_version}")
+    implementation include("dev.hollowcube:luau-natives-macos-arm64:${luau_version}")
 }
 
 processResources {

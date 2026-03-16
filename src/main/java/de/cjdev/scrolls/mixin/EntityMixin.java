@@ -1,7 +1,6 @@
 package de.cjdev.scrolls.mixin;
 
 import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.ModDataComponents;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -35,12 +34,6 @@ public abstract class EntityMixin implements LuaUserData {
     @Shadow
     public abstract void teleportTo(double x, double y, double z);
 
-    @Shadow
-    public abstract <T> T get(DataComponentType<? extends T> type);
-
-    @Shadow
-    public abstract <T> void setComponent(DataComponentType<T> type, T value);
-
     @Override
     public Object scrolls$getField(String field) {
         return switch (field) {
@@ -50,14 +43,6 @@ public abstract class EntityMixin implements LuaUserData {
             case "Pos" -> this.position();
             case "BlockPos" -> this.blockPosition();
             case "World" -> this.level();
-            case "SavedData" -> {
-                var data = this.get(ModDataComponents.PERSISTENT_DATA);
-                if (data == null) {
-                    data = new CompoundTag();
-                    this.setComponent(ModDataComponents.PERSISTENT_DATA, data);
-                }
-                yield data;
-            }
             default -> null;
         };
     }

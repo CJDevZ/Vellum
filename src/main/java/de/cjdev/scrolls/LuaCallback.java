@@ -1,13 +1,15 @@
 package de.cjdev.scrolls;
 
 import net.hollowcube.luau.LuaState;
+import net.hollowcube.luau.LuaType;
 
-public record LuaCallback(LuaState state, int funcRef) {
+public record LuaCallback(LuaState source, int reference) {
     public void invoke(Object... args) {
-        this.state.rawGetI(LuaState.REGISTRY_INDEX, this.funcRef);
-        for (Object arg : args) {
-            Scrolls.pushLua(this.state, arg);
+        if (source.rawGetI(LuaState.REGISTRY_INDEX, this.reference) == LuaType.FUNCTION) {
+            for (Object arg : args) {
+                Scrolls.pushLua(source, arg);
+            }
+            source.call(args.length, 0);
         }
-        this.state.call(args.length, 0);
     }
 }

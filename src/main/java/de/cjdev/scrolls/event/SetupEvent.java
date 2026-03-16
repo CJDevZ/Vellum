@@ -45,7 +45,7 @@ public final class SetupEvent {
 
         public <T extends LuaUserData> void add(String name, Function<Object[], T> newInstance) {
             state.pushFunction(LuaFunc.wrap(state -> {
-                newInstance.apply(Scrolls.stackToStaticArgs(state)).pushLua(state);
+                newInstance.apply(Scrolls.stackToArgs(state, 0)).pushLua(state);
                 return 1;
             }, "newInstance"));
             this.state.setGlobal(name);
