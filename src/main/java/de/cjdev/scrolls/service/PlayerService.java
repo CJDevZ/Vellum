@@ -20,16 +20,16 @@ public class PlayerService implements LuaUserData {
     }
 
     @Override
-    public Object getLuaField(String field) {
+    public Object scrolls$getField(String field) {
         return switch (field) {
-            case "Join" -> Join;
-            case "Leave" -> Leave;
+            case "OnJoin" -> Join;
+            case "OnLeave" -> Leave;
             default -> null;
         };
     }
 
     @Override
-    public int callMethod(LuaState state, String method, Object... args) {
+    public int scrolls$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "GetPlayers" -> {
                 Scrolls.pushLua(state, SERVER.getPlayerList().getPlayers());

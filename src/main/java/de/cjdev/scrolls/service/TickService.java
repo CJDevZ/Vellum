@@ -9,7 +9,7 @@ public class TickService implements LuaUserData {
     public final LuaEvent ServerTickEnd = new LuaEvent();
 
     @Override
-    public Object getLuaField(String field) {
+    public Object scrolls$getField(String field) {
         return switch (field) {
             case "ServerTickStart" -> ServerTickStart;
             case "ServerTickEnd" -> ServerTickEnd;

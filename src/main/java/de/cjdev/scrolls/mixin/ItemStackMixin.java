@@ -12,7 +12,7 @@ public abstract class ItemStackMixin implements LuaUserData {
     public abstract Item getItem();
 
     @Override
-    public Object getLuaField(String field) {
+    public Object scrolls$getField(String field) {
         return switch (field) {
             case "Id" -> this.getItem().builtInRegistryHolder().key().identifier().toShortLanguageKey();
             default -> null;

@@ -4,8 +4,18 @@
   "package": "de.cjdev.scrolls.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlockMixin",
+    "BlockPosMixin",
+    "BlockStateMixin",
+    "CompoundTagMixin",
+    "EntityMixin",
     "ItemStackMixin",
+    "ListTagMixin",
+    "LivingEntityMixin",
+    "MinecraftServerMixin",
     "PlayerMixin",
+    "ServerPlayerMixin",
+    "Vec3Mixin",
     "WorldMixin"
   ],
   "client": [

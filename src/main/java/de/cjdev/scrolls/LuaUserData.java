@@ -8,12 +8,12 @@ public interface LuaUserData {
         state.getMetaTable("LuaUserData");
         state.setMetaTable(-2);
     }
-    default Object getLuaField(String field) {
+    default Object scrolls$getField(String field) {
         return null;
     }
-    default void setLuaField(String field, Object value) {
+    default void scrolls$setField(String field, Object value) {
     }
-    default int callMethod(LuaState state, String method, Object... args) {
+    default int scrolls$call(LuaState state, String method, Object... args) {
         return 0;
     }
 }

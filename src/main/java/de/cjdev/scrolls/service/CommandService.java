@@ -1,0 +1,58 @@
+package de.cjdev.scrolls.service;
+
+import de.cjdev.scrolls.LuaEvent;
+import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.scrolls.Scrolls;
+import net.hollowcube.luau.LuaState;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+
+public class CommandService implements LuaUserData {
+
+    private final MinecraftServer SERVER;
+
+    private final LuaEvent BlockPlaced = new LuaEvent();
+
+    public CommandService(MinecraftServer server) {
+        SERVER = server;
+    }
+
+    @Override
+    public int scrolls$call(LuaState state, String method, Object... args) {
+        switch (method) {
+            case "Register" -> {
+                String commandName = (String) args[0];
+                Scrolls.pushLua(state, SERVER.levels.get(ResourceKey.create(Registries.DIMENSION, Identifier.parse((String) args[0]))));
+                return 1;
+            }
+            case "Dispatch" -> {
+                String command = (String) args[0];
+                SERVER.getCommands().performPrefixedCommand(new CommandSourceStack(
+                        SERVER,
+                        Vec3.atLowerCornerOf(SERVER.getRespawnData().pos()),
+                        Vec2.ZERO,
+                        SERVER.findRespawnDimension(),
+                        SERVER.getFunctionCompilationPermissions(),
+                        "Luau",
+                        Component.literal("Luau"),
+                        SERVER,
+                        null), command);
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public Object scrolls$getField(String field) {
+        return switch (field) {
+            case "BlockPlaced" -> BlockPlaced;
+            default -> null;
+        };
+    }
+}

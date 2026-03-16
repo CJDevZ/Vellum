@@ -16,7 +16,7 @@ public interface ReflectedUserData extends LuaUserData {
     Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     @Override
-    default Object getLuaField(String field) {
+    default Object scrolls$getField(String field) {
         Class<?> clazz = getClass();
         try {
             return getFieldCached(clazz, field).get(this);
@@ -26,7 +26,7 @@ public interface ReflectedUserData extends LuaUserData {
     }
 
     @Override
-    default void setLuaField(String field, Object value) {
+    default void scrolls$setField(String field, Object value) {
         Class<?> clazz = getClass();
         try {
             getFieldCached(clazz, field).set(this, value);
@@ -36,7 +36,7 @@ public interface ReflectedUserData extends LuaUserData {
     }
 
     @Override
-    default int callMethod(LuaState state, String method, Object... args) {
+    default int scrolls$call(LuaState state, String method, Object... args) {
         Class<?> clazz = getClass();
         try {
             MethodHandle method1 = getMethodCached(clazz, method);

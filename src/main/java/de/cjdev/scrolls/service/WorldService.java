@@ -21,7 +21,7 @@ public class WorldService implements LuaUserData {
     }
 
     @Override
-    public int callMethod(LuaState state, String method, Object... args) {
+    public int scrolls$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "Get" -> {
                 Scrolls.pushLua(state, SERVER.levels.get(ResourceKey.create(Registries.DIMENSION, Identifier.parse((String) args[0]))));
@@ -32,7 +32,7 @@ public class WorldService implements LuaUserData {
     }
 
     @Override
-    public Object getLuaField(String field) {
+    public Object scrolls$getField(String field) {
         return switch (field) {
             case "BlockPlaced" -> BlockPlaced;
             case "BlockBroken" -> BlockBroken;

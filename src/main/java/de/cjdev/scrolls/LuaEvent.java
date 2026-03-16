@@ -7,35 +7,27 @@ import java.util.List;
 
 public class LuaEvent implements LuaUserData {
 
-    private final List<Handler> handlers;
+    private final List<LuaCallback> handlers;
 
     public LuaEvent() {
         this.handlers = new ArrayList<>();
     }
 
     public void fire(Object... args) {
-        for (Handler handler : this.handlers) {
-            LuaState state = handler.state;
-            state.rawGetI(LuaState.REGISTRY_INDEX, handler.funcRef);
-            for (Object arg : args) {
-                Scrolls.pushLua(state, arg);
-            }
-            state.call(args.length, 0);
+        for (LuaCallback handler : this.handlers) {
+            handler.invoke(args);
         }
     }
 
-    public void register(LuaState state, int funcRef) {
-        this.handlers.add(new Handler(state, funcRef));
-    }
-
-    private record Handler(LuaState state, int funcRef) {
+    public void register(LuaCallback callback) {
+        this.handlers.add(callback);
     }
 
     @Override
-    public int callMethod(LuaState state, String method, Object... args) {
+    public int scrolls$call(LuaState state, String method, Object... args) {
         switch (method) {
-            case "fire" -> fire(args);
-            case "register" -> register(state, (int) args[0]);
+            case "Fire" -> fire(args);
+            case "Connect" -> register((LuaCallback) args[0]);
         }
         return 0;
     }
