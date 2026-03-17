@@ -1,6 +1,6 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,10 +12,10 @@ public abstract class ItemStackMixin implements LuaUserData {
     public abstract Item getItem();
 
     @Override
-    public Object scrolls$getField(String field) {
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "Id" -> this.getItem().builtInRegistryHolder().key().identifier().toShortLanguageKey();
-            default -> null;
+            default -> LuaUserData.super.vellum$getField(field);
         };
     }
 }

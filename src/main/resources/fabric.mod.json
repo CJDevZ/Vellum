@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "scrolls",
+  "id": "vellum",
   "version": "${version}",
-  "name": "Scrolls",
+  "name": "Vellum",
   "description": "Allows Luau Scripting",
   "authors": [],
   "contact": {},
@@ -11,13 +11,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "de.cjdev.scrolls.Scrolls"
+      "de.cjdev.vellum.Vellum"
     ]
   },
   "mixins": [
-    "scrolls.mixins.json"
+    "vellum.mixins.json"
   ],
-  "accessWidener": "scrolls.accesswidener",
+  "accessWidener": "vellum.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",

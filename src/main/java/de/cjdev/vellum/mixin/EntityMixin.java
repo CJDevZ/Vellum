@@ -1,10 +1,8 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -34,21 +32,29 @@ public abstract class EntityMixin implements LuaUserData {
     @Shadow
     public abstract void teleportTo(double x, double y, double z);
 
+    @Shadow
+    private float yRot;
+
+    @Shadow
+    private float xRot;
+
     @Override
-    public Object scrolls$getField(String field) {
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "Id" -> this.getId();
             case "UUID" -> this.getStringUUID();
             case "Name" -> this.getScoreboardName();
             case "Pos" -> this.position();
             case "BlockPos" -> this.blockPosition();
+            case "Yaw" -> this.yRot;
+            case "Pitch" -> this.xRot;
             case "World" -> this.level();
-            default -> null;
+            default -> LuaUserData.super.vellum$getField(field);
         };
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "Teleport" -> {
                 var pos = (Vec3)args[0];

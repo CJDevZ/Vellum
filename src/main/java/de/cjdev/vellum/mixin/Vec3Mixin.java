@@ -1,6 +1,6 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,12 +21,17 @@ public class Vec3Mixin implements LuaUserData {
     public double z;
 
     @Override
-    public Object scrolls$getField(String field) {
+    public String vellum$luaName() {
+        return "Vec3";
+    }
+
+    @Override
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "X" -> this.x;
             case "Y" -> this.y;
             case "Z" -> this.z;
-            default -> null;
+            default -> LuaUserData.super.vellum$getField(field);
         };
     }
 }

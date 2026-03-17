@@ -1,8 +1,8 @@
-package de.cjdev.scrolls.service;
+package de.cjdev.vellum.service;
 
-import de.cjdev.scrolls.LuaEvent;
-import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.Scrolls;
+import de.cjdev.vellum.LuaEvent;
+import de.cjdev.vellum.LuaUserData;
+import de.cjdev.vellum.Vellum;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class CommandService implements LuaUserData {
 
+    private static final String LUA_NAME = "CommandService";
     private final MinecraftServer SERVER;
 
     private final LuaEvent BlockPlaced = new LuaEvent();
@@ -24,11 +25,11 @@ public class CommandService implements LuaUserData {
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "Register" -> {
                 String commandName = (String) args[0];
-                Scrolls.pushLua(state, SERVER.levels.get(ResourceKey.create(Registries.DIMENSION, Identifier.parse((String) args[0]))));
+                Vellum.pushLua(state, SERVER.levels.get(ResourceKey.create(Registries.DIMENSION, Identifier.parse((String) args[0]))));
                 return 1;
             }
             case "Dispatch" -> {
@@ -49,10 +50,15 @@ public class CommandService implements LuaUserData {
     }
 
     @Override
-    public Object scrolls$getField(String field) {
+    public String vellum$luaName() {
+        return LUA_NAME;
+    }
+
+    @Override
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "BlockPlaced" -> BlockPlaced;
-            default -> null;
+            default -> LuaUserData.super.vellum$getField(field);
         };
     }
 }

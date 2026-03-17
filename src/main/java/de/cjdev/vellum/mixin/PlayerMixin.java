@@ -1,6 +1,6 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,20 +12,20 @@ public abstract class PlayerMixin extends LivingEntityMixin implements LuaUserDa
     public abstract FoodData getFoodData();
 
     @Override
-    public Object scrolls$getField(String field) {
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "Hunger" -> this.getFoodData().getFoodLevel();
             case "Saturation" -> this.getFoodData().getSaturationLevel();
-            default -> super.scrolls$getField(field);
+            default -> super.vellum$getField(field);
         };
     }
 
     @Override
-    public void scrolls$setField(String field, Object value) {
+    public void vellum$setField(String field, Object value) {
         switch (field) {
             case "Hunger" -> this.getFoodData().setFoodLevel((int) value);
             case "Saturation" -> this.getFoodData().setSaturation((float) value);
-            default -> super.scrolls$setField(field, value);
+            default -> super.vellum$setField(field, value);
         }
     }
 }

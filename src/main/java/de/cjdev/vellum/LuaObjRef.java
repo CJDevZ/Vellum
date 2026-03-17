@@ -1,4 +1,4 @@
-package de.cjdev.scrolls;
+package de.cjdev.vellum;
 
 import net.hollowcube.luau.LuaState;
 

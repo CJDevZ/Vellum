@@ -1,12 +1,14 @@
-package de.cjdev.scrolls.service;
+package de.cjdev.vellum.service;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.hollowcube.luau.LuaState;
 
 import java.util.Map;
 import java.util.function.Function;
 
 public class EnumService implements LuaUserData {
+    private static final String LUA_NAME = "EnumService";
+
     private final Map<String, LuaEnum> enums;
 
     public EnumService(Map<String, LuaEnum> enums) {
@@ -14,12 +16,17 @@ public class EnumService implements LuaUserData {
     }
 
     @Override
-    public Object scrolls$getField(String field) {
+    public String vellum$luaName() {
+        return LUA_NAME;
+    }
+
+    @Override
+    public Object vellum$getField(String field) {
         return enums.get(field);
     }
 
     public static class LuaEnum implements LuaUserData {
-
+        private static final String LUA_NAME = "LuaEnum";
         private final Function<String, ?> lookup;
 
         public LuaEnum(Function<String, ?> lookup) {
@@ -31,10 +38,15 @@ public class EnumService implements LuaUserData {
         }
 
         @Override
-        public void pushLua(LuaState state) {
+        public void scrolls$pushLua(LuaState state) {
             state.newUserData(this);
             state.getMetaTable("LuaEnumClass");
             state.setMetaTable(-2);
+        }
+
+        @Override
+        public String vellum$luaName() {
+            return LUA_NAME;
         }
     }
 }

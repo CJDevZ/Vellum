@@ -1,7 +1,7 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.Scrolls;
+import de.cjdev.vellum.LuaUserData;
+import de.cjdev.vellum.Vellum;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -22,10 +22,10 @@ public abstract class WorldMixin extends Level implements LuaUserData {
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "GetState" -> {
-                Scrolls.pushLua(state, this.getBlockState((BlockPos) args[0]));
+                Vellum.pushLua(state, this.getBlockState((BlockPos) args[0]));
                 return 1;
             }
             case "SetState" -> {

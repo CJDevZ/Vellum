@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "de.cjdev.scrolls.mixin",
+  "package": "de.cjdev.vellum.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockMixin",

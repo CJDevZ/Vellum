@@ -1,13 +1,14 @@
-package de.cjdev.scrolls.service;
+package de.cjdev.vellum.service;
 
-import de.cjdev.scrolls.LuaEvent;
-import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.Scrolls;
+import de.cjdev.vellum.LuaEvent;
+import de.cjdev.vellum.LuaUserData;
+import de.cjdev.vellum.Vellum;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.server.MinecraftServer;
 
 public class PlayerService implements LuaUserData {
 
+    private static final String LUA_NAME = "PlayerService";
     private final MinecraftServer SERVER;
 
     public final LuaEvent Join;
@@ -20,19 +21,24 @@ public class PlayerService implements LuaUserData {
     }
 
     @Override
-    public Object scrolls$getField(String field) {
+    public String vellum$luaName() {
+        return LUA_NAME;
+    }
+
+    @Override
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "OnJoin" -> Join;
             case "OnLeave" -> Leave;
-            default -> null;
+            default -> LuaUserData.super.vellum$getField(field);
         };
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "GetPlayers" -> {
-                Scrolls.pushLua(state, SERVER.getPlayerList().getPlayers());
+                Vellum.pushLua(state, SERVER.getPlayerList().getPlayers());
                 return 1;
             }
         }

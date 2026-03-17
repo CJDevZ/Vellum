@@ -1,7 +1,7 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.Scrolls;
+import de.cjdev.vellum.LuaUserData;
+import de.cjdev.vellum.Vellum;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -16,18 +16,18 @@ public abstract class BlockStateMixin extends BlockBehaviour.BlockStateBase impl
     }
 
     @Override
-    public Object scrolls$getField(String field) {
-        return switch (field) {
-            case "Block" -> this.getBlock();
-            default -> null;
-        };
+    public Object vellum$getField(String field) {
+        if (field.equals("Block")) {
+            return this.getBlock();
+        }
+        return LuaUserData.super.vellum$getField(field);
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "With" -> {
-                Scrolls.pushLua(state, this.trySetValue((Property) args[0], (Comparable) args[1]));
+                Vellum.pushLua(state, this.trySetValue((Property) this.getBlock().getStateDefinition().getProperty((String) args[0]), (Comparable) args[1]));
                 return 1;
             }
         }

@@ -1,15 +1,14 @@
-package de.cjdev.scrolls.event;
+package de.cjdev.vellum.event;
 
-import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.Scrolls;
-import de.cjdev.scrolls.service.EnumService;
+import de.cjdev.vellum.LuaUserData;
+import de.cjdev.vellum.Vellum;
+import de.cjdev.vellum.service.EnumService;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.hollowcube.luau.LuaFunc;
 import net.hollowcube.luau.LuaState;
 
-import java.lang.invoke.*;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -45,7 +44,7 @@ public final class SetupEvent {
 
         public <T extends LuaUserData> void add(String name, Function<Object[], T> newInstance) {
             state.pushFunction(LuaFunc.wrap(state -> {
-                newInstance.apply(Scrolls.stackToArgs(state, 0)).pushLua(state);
+                newInstance.apply(Vellum.stackToArgs(state, 0)).scrolls$pushLua(state);
                 return 1;
             }, "newInstance"));
             this.state.setGlobal(name);

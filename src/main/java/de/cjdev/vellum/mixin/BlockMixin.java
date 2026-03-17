@@ -1,6 +1,6 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,10 +12,10 @@ public abstract class BlockMixin implements LuaUserData {
     public abstract BlockState defaultBlockState();
 
     @Override
-    public Object scrolls$getField(String field) {
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "DefaultState" -> this.defaultBlockState();
-            default -> null;
+            default -> LuaUserData.super.vellum$getField(field);
         };
     }
 }

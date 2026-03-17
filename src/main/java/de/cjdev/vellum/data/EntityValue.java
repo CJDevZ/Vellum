@@ -1,7 +1,7 @@
-package de.cjdev.scrolls.data;
+package de.cjdev.vellum.data;
 
-import de.cjdev.scrolls.LuaUserData;
-import de.cjdev.scrolls.Scrolls;
+import de.cjdev.vellum.LuaUserData;
+import de.cjdev.vellum.Vellum;
 import net.hollowcube.luau.LuaState;
 import net.minecraft.world.entity.Entity;
 
@@ -10,6 +10,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityValue implements LuaUserData {
+    public static final String LUA_NAME = "EntityValue";
+
     private final Map<UUID, Object> VALUES = new ConcurrentHashMap<>();
 
     public boolean hasKey(Entity entity) {
@@ -29,14 +31,19 @@ public class EntityValue implements LuaUserData {
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public String vellum$luaName() {
+        return LUA_NAME;
+    }
+
+    @Override
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "Has" -> {
                 state.pushBoolean(this.hasKey((Entity) args[0]));
                 return 1;
             }
             case "Get" -> {
-                Scrolls.pushLua(state, this.getValue((Entity) args[0]));
+                Vellum.pushLua(state, this.getValue((Entity) args[0]));
                 return 1;
             }
             case "Set" -> this.setValue((Entity) args[0], args[1]);

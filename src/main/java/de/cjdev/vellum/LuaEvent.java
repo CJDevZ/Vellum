@@ -1,4 +1,4 @@
-package de.cjdev.scrolls;
+package de.cjdev.vellum;
 
 import net.hollowcube.luau.LuaState;
 
@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LuaEvent implements LuaUserData {
+
+    private static final String LUA_NAME = "Event";
 
     private final List<LuaCallback> handlers;
 
@@ -24,7 +26,12 @@ public class LuaEvent implements LuaUserData {
     }
 
     @Override
-    public int scrolls$call(LuaState state, String method, Object... args) {
+    public String vellum$luaName() {
+        return LUA_NAME;
+    }
+
+    @Override
+    public int vellum$call(LuaState state, String method, Object... args) {
         switch (method) {
             case "Fire" -> fire(args);
             case "Connect" -> register((LuaCallback) args[0]);

@@ -1,9 +1,9 @@
-package de.cjdev.scrolls;
+package de.cjdev.vellum;
 
 import com.mojang.logging.LogUtils;
-import de.cjdev.scrolls.data.EntityValue;
-import de.cjdev.scrolls.event.SetupEvent;
-import de.cjdev.scrolls.service.*;
+import de.cjdev.vellum.data.EntityValue;
+import de.cjdev.vellum.event.SetupEvent;
+import de.cjdev.vellum.service.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class Scrolls implements ModInitializer {
+public class Vellum implements ModInitializer {
 
     private static LuaState GLOBAL = null;
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -55,7 +55,7 @@ public class Scrolls implements ModInitializer {
         SetupEvent.ClassBuilder classBuilder = new SetupEvent.ClassBuilder(state);
         classBuilder.add("Vec3", args -> (LuaUserData) new Vec3(((Number)args[0]).doubleValue(), ((Number)args[1]).doubleValue(), ((Number)args[2]).doubleValue()));
         classBuilder.add("BlockPos", args -> (LuaUserData) new BlockPos(((Number)args[0]).intValue(), ((Number)args[1]).intValue(), ((Number)args[2]).intValue()));
-        classBuilder.add("EntityValue", _ -> new EntityValue());
+        classBuilder.add(EntityValue.LUA_NAME, _ -> new EntityValue());
         SetupEvent.REGISTER_CLASS.invoker().onRegistration(classBuilder);
     }
 
@@ -66,7 +66,7 @@ public class Scrolls implements ModInitializer {
         enumBuilder.add("GameMode", GameType.class);
         SetupEvent.REGISTER_ENUM.invoker().onRegistration(enumBuilder);
         EnumService enumService = new EnumService(enumBuilder.build());
-        enumService.pushLua(state);
+        enumService.scrolls$pushLua(state);
         state.setGlobal("Enum");
     }
 
@@ -85,7 +85,14 @@ public class Scrolls implements ModInitializer {
         // require
         GLOBAL.pushFunction(LuaFunc.wrap(state -> {
             String scriptName = (String) fromStack(state, 1);
-            state.pushString("<map>");
+            Path scriptPath = scriptsFolder.resolve(scriptName + ".luau");
+            try {
+                LuaState moduleThread = runLuau(scriptName, Files.readString(scriptPath, StandardCharsets.UTF_8));
+                Object moduleObject = fromStack(moduleThread, -1);
+                pushLua(state, moduleObject);
+            } catch (LuauCompileException | IOException e) {
+                LOGGER.error("Error loading module {}", scriptName, e);
+            }
             return 1;
         }, "require"));
         GLOBAL.setGlobal("require");
@@ -95,14 +102,14 @@ public class Scrolls implements ModInitializer {
         GLOBAL.pushFunction(LuaFunc.wrap(state -> {
             LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
             String field = state.toString(2);
-            pushLua(state, userData.scrolls$getField(field));
+            pushLua(state, userData.vellum$getField(field));
             return 1;
         }, "__index"));
         GLOBAL.setField(-2, "__index");
         GLOBAL.pushFunction(LuaFunc.wrap(state -> {
             LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
             String field = state.toString(2);
-            userData.scrolls$setField(field, fromStack(state, 3));
+            userData.vellum$setField(field, fromStack(state, 3));
             return 0;
         }, "__newindex"));
         GLOBAL.setField(-2, "__newindex");
@@ -110,7 +117,7 @@ public class Scrolls implements ModInitializer {
             LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
             LuaString methodName = state.nameCallAtom();
             String method = ((LuaString.Str) methodName).str();
-            return userData.scrolls$call(state, method, stackToArgs(state, 1));
+            return userData.vellum$call(state, method, stackToArgs(state, 1));
         }, "__namecall"));
         GLOBAL.setField(-2, "__namecall");
         GLOBAL.pushFunction(LuaFunc.wrap(state -> {
@@ -147,15 +154,15 @@ public class Scrolls implements ModInitializer {
         // LuaEnum end
 
         // PlayerEvents
-        PLAYER_SERVICE.pushLua(GLOBAL);
+        PLAYER_SERVICE.scrolls$pushLua(GLOBAL);
         GLOBAL.setGlobal("PlayerService");
-        TICK_SERVICE.pushLua(GLOBAL);
+        TICK_SERVICE.scrolls$pushLua(GLOBAL);
         GLOBAL.setGlobal("TickService");
-        COMMAND_SERVICE.pushLua(GLOBAL);
+        COMMAND_SERVICE.scrolls$pushLua(GLOBAL);
         GLOBAL.setGlobal("CommandService");
 
         // Server
-        ((LuaUserData) server).pushLua(GLOBAL);
+        ((LuaUserData) server).scrolls$pushLua(GLOBAL);
         GLOBAL.setGlobal("Server");
 
         registerClasses(GLOBAL);
@@ -166,12 +173,13 @@ public class Scrolls implements ModInitializer {
 
     public static Object fromStack(LuaState state, int index) {
         return switch (state.type(index)) {
-            case NUMBER -> state.toNumber(index);
-            case BOOLEAN -> state.toBoolean(index);
-            case STRING -> state.toString(index);
-            case USERDATA -> state.toUserData(index);
             case NIL -> null;
+            case BOOLEAN -> state.toBoolean(index);
+            case NUMBER -> state.toNumber(index);
+            case VECTOR -> state.toVector(index);
+            case STRING -> state.toString(index);
             case FUNCTION -> new LuaCallback(state, state.ref(index));
+            case USERDATA -> state.toUserData(index);
             default -> new LuaObjRef(state, state.ref(index));
         };
     }
@@ -182,11 +190,16 @@ public class Scrolls implements ModInitializer {
             state.pushNil();
             return;
         }
+        if (obj instanceof float[] vector) {
+            state.pushVector(vector);
+            return;
+        }
         if (obj.getClass().isArray()) {
             pushArray(state, obj);
             return;
         }
         switch (obj) {
+            case Boolean bool -> state.pushBoolean(bool);
             case String string -> state.pushString(string);
             case Integer number -> state.pushInteger(number);
             case Number number -> state.pushNumber(number.doubleValue());
@@ -200,7 +213,7 @@ public class Scrolls implements ModInitializer {
                 func.source().rawGetI(LuaState.REGISTRY_INDEX, func.reference());
                 func.source().xmove(state, 1);
             }
-            case LuaUserData userData -> userData.pushLua(state);
+            case LuaUserData userData -> userData.scrolls$pushLua(state);
             case Enum enumConstant -> {
                 state.newUserData(enumConstant);
                 state.getMetaTable("LuaEnum");
@@ -266,7 +279,7 @@ public class Scrolls implements ModInitializer {
         builder.append(fromStack(state, top));
     }
 
-    public static void runLuau(String chunkName, String script) throws LuauCompileException {
+    public static LuaState runLuau(String chunkName, String script) throws LuauCompileException {
         final byte[] bytecode = LuauCompiler.DEFAULT.compile(script);
 
         var thread = sandboxedThread();
@@ -278,6 +291,7 @@ public class Scrolls implements ModInitializer {
         } catch (LuaError e) {
             LOGGER.error("Error running {}", chunkName, e);
         }
+        return thread;
     }
 
     public static void runScripts(MinecraftServer server) {
@@ -292,10 +306,8 @@ public class Scrolls implements ModInitializer {
                     .forEach(path -> {
                         try {
                             runLuau(path.toString(), Files.readString(path, StandardCharsets.UTF_8));
-                        } catch (LuauCompileException e) {
+                        } catch (LuauCompileException | IOException e) {
                             LOGGER.error("Error running {}", path, e);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
                         }
                     });
         } catch (IOException e) {

@@ -1,6 +1,6 @@
-package de.cjdev.scrolls.mixin;
+package de.cjdev.vellum.mixin;
 
-import de.cjdev.scrolls.LuaUserData;
+import de.cjdev.vellum.LuaUserData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.level.GameType;
@@ -18,18 +18,18 @@ public abstract class ServerPlayerMixin extends PlayerMixin implements LuaUserDa
     public abstract boolean setGameMode(GameType mode);
 
     @Override
-    public Object scrolls$getField(String field) {
+    public Object vellum$getField(String field) {
         return switch (field) {
             case "GameMode" -> this.gameMode.getGameModeForPlayer();
-            default -> super.scrolls$getField(field);
+            default -> super.vellum$getField(field);
         };
     }
 
     @Override
-    public void scrolls$setField(String field, Object value) {
+    public void vellum$setField(String field, Object value) {
         switch (field) {
             case "GameMode" -> this.setGameMode((GameType) value);
-            default -> super.scrolls$setField(field, value);
+            default -> super.vellum$setField(field, value);
         }
     }
 }
