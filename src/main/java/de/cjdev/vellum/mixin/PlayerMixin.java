@@ -28,4 +28,9 @@ public abstract class PlayerMixin extends LivingEntityMixin implements LuaUserDa
             default -> super.vellum$setField(field, value);
         }
     }
+
+    @Override
+    public String vellum$luaName() {
+        return "Player";
+    }
 }

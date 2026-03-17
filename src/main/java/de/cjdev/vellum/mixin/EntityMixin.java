@@ -65,4 +65,9 @@ public abstract class EntityMixin implements LuaUserData {
         }
         return 0;
     }
+
+    @Override
+    public String vellum$luaName() {
+        return "Entity";
+    }
 }

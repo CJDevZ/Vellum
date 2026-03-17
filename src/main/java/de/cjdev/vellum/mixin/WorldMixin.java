@@ -35,4 +35,9 @@ public abstract class WorldMixin extends Level implements LuaUserData {
         }
         return 0;
     }
+
+    @Override
+    public String vellum$luaName() {
+        return "World";
+    }
 }

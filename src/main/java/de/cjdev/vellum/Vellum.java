@@ -66,7 +66,7 @@ public class Vellum implements ModInitializer {
         enumBuilder.add("GameMode", GameType.class);
         SetupEvent.REGISTER_ENUM.invoker().onRegistration(enumBuilder);
         EnumService enumService = new EnumService(enumBuilder.build());
-        enumService.scrolls$pushLua(state);
+        enumService.vellum$pushLua(state);
         state.setGlobal("Enum");
     }
 
@@ -98,71 +98,62 @@ public class Vellum implements ModInitializer {
         GLOBAL.setGlobal("require");
 
         // LuaUserData start
-        GLOBAL.newMetaTable("LuaUserData");
-        GLOBAL.pushFunction(LuaFunc.wrap(state -> {
-            LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
-            String field = state.toString(2);
-            pushLua(state, userData.vellum$getField(field));
-            return 1;
-        }, "__index"));
-        GLOBAL.setField(-2, "__index");
-        GLOBAL.pushFunction(LuaFunc.wrap(state -> {
-            LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
-            String field = state.toString(2);
-            userData.vellum$setField(field, fromStack(state, 3));
-            return 0;
-        }, "__newindex"));
-        GLOBAL.setField(-2, "__newindex");
-        GLOBAL.pushFunction(LuaFunc.wrap(state -> {
-            LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
-            LuaString methodName = state.nameCallAtom();
-            String method = ((LuaString.Str) methodName).str();
-            return userData.vellum$call(state, method, stackToArgs(state, 1));
-        }, "__namecall"));
-        GLOBAL.setField(-2, "__namecall");
-        GLOBAL.pushFunction(LuaFunc.wrap(state -> {
-            LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
-            state.pushString(userData.toString());
-            return 1;
-        }, "__tostring"));
-        GLOBAL.setField(-2, "__tostring");
-        GLOBAL.pop(1);
+        MetaTableBuilder.builder()
+                .index(state -> {
+                    LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
+                    String field = state.checkString(2);
+                    pushLua(state, userData.vellum$getField(field));
+                    return 1;
+                })
+                .newIndex(state -> {
+                    LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
+                    String field = state.checkString(2);
+                    userData.vellum$setField(field, fromStack(state, 3));
+                    return 0;
+                })
+                .nameCall(state -> {
+                    LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
+                    LuaString methodName = state.nameCallAtom();
+                    String method = ((LuaString.Str) methodName).str();
+                    return userData.vellum$call(state, method, stackToArgs(state, 1));
+                })
+                .toString(state -> {
+                    LuaUserData userData = (LuaUserData) state.checkUserData(1, "LuaUserData");
+                    state.pushString(userData.toString());
+                    return 1;
+                }).build(GLOBAL, "LuaUserData");
         // LuaUserData end
 
         // LuaEnumClass start
-        GLOBAL.newMetaTable("LuaEnumClass");
-        GLOBAL.pushFunction(LuaFunc.wrap(state -> {
-            EnumService.LuaEnum userData = (EnumService.LuaEnum) state.checkUserData(1, "LuaEnumClass");
-            String enumName = state.toString(2);
-            var enumValue = userData.byName(enumName);
-            pushLua(state, enumValue);
-            return 1;
-        }, "__index"));
-        GLOBAL.setField(-2, "__index");
-        GLOBAL.pop(1);
+        MetaTableBuilder.builder()
+                .index(state -> {
+                    EnumService.LuaEnum userData = (EnumService.LuaEnum) state.checkUserData(1, "LuaEnumClass");
+                    String enumName = state.toString(2);
+                    var enumValue = userData.byName(enumName);
+                    pushLua(state, enumValue);
+                    return 1;
+                }).build(GLOBAL, "LuaEnumClass");
         // LuaEnumClass end
 
         // LuaEnum start
-        GLOBAL.newMetaTable("LuaEnum");
-        GLOBAL.pushFunction(LuaFunc.wrap(state -> {
-            Enum<?> userData = (Enum<?>) state.checkUserData(1, "LuaEnum");
-            state.pushString(userData.name());
-            return 1;
-        }, "__tostring"));
-        GLOBAL.setField(-2, "__tostring");
-        GLOBAL.pop(1);
+        MetaTableBuilder.builder()
+                .toString(state -> {
+                    Enum<?> userData = (Enum<?>) state.checkUserData(1, "LuaEnum");
+                    state.pushString(userData.name());
+                    return 1;
+                }).build(GLOBAL, "LuaEnum");
         // LuaEnum end
 
         // PlayerEvents
-        PLAYER_SERVICE.scrolls$pushLua(GLOBAL);
+        PLAYER_SERVICE.vellum$pushLua(GLOBAL);
         GLOBAL.setGlobal("PlayerService");
-        TICK_SERVICE.scrolls$pushLua(GLOBAL);
+        TICK_SERVICE.vellum$pushLua(GLOBAL);
         GLOBAL.setGlobal("TickService");
-        COMMAND_SERVICE.scrolls$pushLua(GLOBAL);
+        COMMAND_SERVICE.vellum$pushLua(GLOBAL);
         GLOBAL.setGlobal("CommandService");
 
         // Server
-        ((LuaUserData) server).scrolls$pushLua(GLOBAL);
+        ((LuaUserData) server).vellum$pushLua(GLOBAL);
         GLOBAL.setGlobal("Server");
 
         registerClasses(GLOBAL);
@@ -213,7 +204,7 @@ public class Vellum implements ModInitializer {
                 func.source().rawGetI(LuaState.REGISTRY_INDEX, func.reference());
                 func.source().xmove(state, 1);
             }
-            case LuaUserData userData -> userData.scrolls$pushLua(state);
+            case LuaUserData userData -> userData.vellum$pushLua(state);
             case Enum enumConstant -> {
                 state.newUserData(enumConstant);
                 state.getMetaTable("LuaEnum");

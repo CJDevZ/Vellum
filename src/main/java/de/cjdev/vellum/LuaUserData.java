@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public interface LuaUserData {
     String vellum$luaName();
-    default void scrolls$pushLua(LuaState state) {
+    default void vellum$pushLua(LuaState state) {
         state.newUserData(this);
         state.getMetaTable("LuaUserData");
         state.setMetaTable(-2);

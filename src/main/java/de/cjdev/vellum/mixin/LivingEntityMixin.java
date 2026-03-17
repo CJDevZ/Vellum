@@ -31,4 +31,9 @@ public abstract class LivingEntityMixin extends EntityMixin implements LuaUserDa
             default -> super.vellum$setField(field, value);
         }
     }
+
+    @Override
+    public String vellum$luaName() {
+        return "LivingEntity";
+    }
 }

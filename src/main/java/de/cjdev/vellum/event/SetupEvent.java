@@ -44,7 +44,7 @@ public final class SetupEvent {
 
         public <T extends LuaUserData> void add(String name, Function<Object[], T> newInstance) {
             state.pushFunction(LuaFunc.wrap(state -> {
-                newInstance.apply(Vellum.stackToArgs(state, 0)).scrolls$pushLua(state);
+                newInstance.apply(Vellum.stackToArgs(state, 0)).vellum$pushLua(state);
                 return 1;
             }, "newInstance"));
             this.state.setGlobal(name);

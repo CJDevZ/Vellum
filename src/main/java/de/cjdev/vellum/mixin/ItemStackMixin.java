@@ -18,4 +18,9 @@ public abstract class ItemStackMixin implements LuaUserData {
             default -> LuaUserData.super.vellum$getField(field);
         };
     }
+
+    @Override
+    public String vellum$luaName() {
+        return "ItemStack";
+    }
 }

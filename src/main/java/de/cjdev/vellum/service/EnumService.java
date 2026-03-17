@@ -38,7 +38,7 @@ public class EnumService implements LuaUserData {
         }
 
         @Override
-        public void scrolls$pushLua(LuaState state) {
+        public void vellum$pushLua(LuaState state) {
             state.newUserData(this);
             state.getMetaTable("LuaEnumClass");
             state.setMetaTable(-2);
